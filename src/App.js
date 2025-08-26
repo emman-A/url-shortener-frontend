@@ -4,11 +4,13 @@ function App() {
   const [originalUrl, setOriginalUrl] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [error, setError] = useState("");
+  const [ isLoading, setIsLoading ] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setShortUrl("");
+    setIsLoading(true);
 
     let urlToSend = originalUrl.trim();
 
@@ -33,8 +35,10 @@ function App() {
       } else {
         setShortUrl(data.shortUrl);
       }
+      setIsLoading(false);
     } catch (err) {
       setError("Server error. Please try again later.");
+      setIsLoading(false);
     }
   };
 
@@ -53,12 +57,20 @@ function App() {
             onChange={(e) => setOriginalUrl(e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <button
+         
+                <button
+                disabled={isLoading}
+
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
           >
-            Shorten URL
+            {
+              isLoading ? "Loading..." : "Shorten URL"
+            }
+            
           </button>
+          
+        
         </form>
 
         {error && (
