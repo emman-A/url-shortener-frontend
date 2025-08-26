@@ -20,9 +20,6 @@ export default function Urlcode() {
 }, [id]);
 
   return (
-    <div>
-      <h1>User Profile</h1>
-      <p>Showing details for user with ID: {id}</p>
-    </div>
+    <></>
   );
 }
