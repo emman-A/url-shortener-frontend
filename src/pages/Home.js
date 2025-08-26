@@ -1,0 +1,103 @@
+import React, { useState } from "react";
+
+function Home() {
+  const [originalUrl, setOriginalUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
+  const [error, setError] = useState("");
+  const [ isLoading, setIsLoading ] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setShortUrl("");
+    setIsLoading(true);
+
+    let urlToSend = originalUrl.trim();
+
+    // ✅ Auto-prepend https:// if user forgets
+    if (!/^https?:\/\//i.test(urlToSend)) {
+      urlToSend = "https://" + urlToSend;
+    }
+
+    try {
+      const response = await fetch(
+        // "https://url-shott-backend.onrender.com/shorten",
+        `${process.env.REACT_APP_SERVER_URL}/shorten`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ originalUrl: urlToSend }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.error) {
+        setError(data.error);
+      } else {
+        // setShortUrl(`https://urlshortneer.netlify.app/${data.id}`);
+        setShortUrl(`${process.env.REACT_APP_CLIENT_URL}/${data.id}`);
+
+      }
+      setIsLoading(false);
+    } catch (err) {
+      setError("Server error. Please try again later.");
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          URL Shortener
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Enter a long URL"
+            value={originalUrl}
+            onChange={(e) => setOriginalUrl(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+         
+                <button
+                disabled={isLoading}
+
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
+          >
+            {
+              isLoading ? "Loading..." : "Shorten URL"
+            }
+            
+          </button>
+          
+        
+        </form>
+
+        {error && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {shortUrl && (
+          <div className="mt-4 p-3 bg-green-100 border border-green-400 rounded-lg">
+            <p className="text-green-700 font-semibold mb-2">Short URL:</p>
+            <a
+              href={shortUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline break-all"
+            >
+              {shortUrl}
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default Home;
